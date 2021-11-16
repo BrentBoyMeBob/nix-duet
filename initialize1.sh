@@ -8,8 +8,10 @@ if ! [ -f "README.md" ] && [ -d ".config" ]; then
 fi
 
 # Install the Nix package manager, first by unmounting some stuff.
-sudo umount /proc/{cpuinfo,diskstats,meminfo,stat,uptime} || true
-curl -L https://nixos.org/nix/install | sh
+if ! curl -L https://nixos.org/nix/install | sh; then
+	sudo umount /proc/{cpuinfo,diskstats,meminfo,stat,uptime} || true
+	curl -L https://nixos.org/nix/install | sh
+fi
 . ~/.nix-profile/etc/profile.d/nix.sh
 
 # Install home-manager for Nix afterwards.
@@ -23,7 +25,15 @@ nix-shell '<home-manager>' -A install
 # Zsh was stubborn with home-manager, so install oh-my-zsh manually.
 sudo su -c "echo /home/$USER/.nix-profile/bin/zsh >> /etc/shells"
 sudo chsh $USER -s /home/$USER/.nix-profile/bin/zsh
-echo 'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"' > ~/.zshrc
+echo 'PATH=$PATH:~/.nix-profile/bin/ && sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"' > ~/.zshrc
+
+# Set up desktop icons.
+mkdir -p ~/.config/systemd/user/cros-garcon.service.d/
+cat > ~/.config/systemd/user/cros-garcon.service.d/override.conf <<EOF
+[Service]
+Environment="PATH=%h/.nix-profile/bin:/usr/local/sbin:/usr/local/bin:/usr/local/games:/usr/sbin:/usr/bin:/usr/games:/sbin:/bin"
+Environment="XDG_DATA_DIRS=%h/.nix-profile/share:%h/.local/share:/usr/local/share:/usr/share"
+EOF
 
 # Complete in the other script.
-echo 'Please reload Crostini and run the next script.'
+echo 'Please restart Crostini fully and run the next script.'
