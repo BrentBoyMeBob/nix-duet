@@ -8,20 +8,22 @@ if ! [ -f "README.md" ] && [ -d ".config" ]; then
 fi
 
 # Install the Nix package manager, first by unmounting some stuff.
-sudo umount /proc/{cpuinfo,diskstats,meminfo,stat,uptime}
+sudo umount /proc/{cpuinfo,diskstats,meminfo,stat,uptime} || true
 curl -L https://nixos.org/nix/install | sh
 . ~/.nix-profile/etc/profile.d/nix.sh
 
 # Install home-manager for Nix afterwards.
 nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
 nix-channel --update
+rm -rf ~/.config/nixpkgs
 export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
+cp -r .config/nixpkgs ~/.config/nixpkgs
 nix-shell '<home-manager>' -A install
 
-# Copy my home-manager configuration over, and reload home-manager.
-rm ~/.config/nixpkgs
-cp -r .config/nixpkgs ~/.config/nixpkgs
-home-manager switch
+# Zsh was stubborn with home-manager, so install oh-my-zsh manually.
+sudo su -c "echo /home/$USER/.nix-profile/bin/zsh >> /etc/shells"
+sudo chsh $USER -s /home/$USER/.nix-profile/bin/zsh
+echo 'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"' > ~/.zshrc
 
-# Finished!
-echo "The dots have been installed! Enjoy your new Crostini setup!"
+# Complete in the other script.
+echo 'Please reload Crostini and run the next script.'

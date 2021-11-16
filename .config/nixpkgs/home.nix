@@ -2,9 +2,18 @@
 
 {
   home.packages = [
+    # All of these in particular are mainly just novelty packages.
     pkgs.pfetch
+    pkgs.pipes
+    pkgs.asciiquarium
+    pkgs.fortune
+    pkgs.cbonsai
+    pkgs.cmatrix
+
+    # Zsh had to be installed as an ordinary package, because home-manager has priority issues otherwise.
+    pkgs.zsh
   ];
-  
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
