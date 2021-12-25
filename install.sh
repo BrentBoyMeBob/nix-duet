@@ -22,11 +22,6 @@ export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
 cp -r .config/nixpkgs ~/.config/nixpkgs
 nix-shell '<home-manager>' -A install
 
-# Zsh was stubborn with home-manager, so install oh-my-zsh manually.
-sudo su -c "echo /home/$USER/.nix-profile/bin/zsh >> /etc/shells"
-sudo chsh $USER -s /home/$USER/.nix-profile/bin/zsh
-echo 'PATH=$PATH:~/.nix-profile/bin/ && sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"' > ~/.zshrc
-
 # Set up desktop icons.
 mkdir -p ~/.config/systemd/user/cros-garcon.service.d/
 cat > ~/.config/systemd/user/cros-garcon.service.d/override.conf <<EOF
@@ -35,5 +30,8 @@ Environment="PATH=%h/.nix-profile/bin:/usr/local/sbin:/usr/local/bin:/usr/local/
 Environment="XDG_DATA_DIRS=%h/.nix-profile/share:%h/.local/share:/usr/local/share:/usr/share"
 EOF
 
-# Complete in the other script.
-echo 'Please restart Crostini fully and run the next script.'
+# Unmount certain partitions on zsh startup to make sure Nix doesn't have a fuss.
+echo 'PATH=$PATH:~/.nix-profile/bin/ && sudo umount /proc/{cpuinfo,diskstats,meminfo,stat,uptime} > /dev/null 2>&1 || true' >> ~/.bashrc
+
+# Finished!
+echo "The dots have been installed! Enjoy your new Crostini setup!"

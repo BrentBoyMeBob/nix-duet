@@ -9,9 +9,6 @@
     pkgs.fortune
     pkgs.cbonsai
     pkgs.cmatrix
-
-    # Zsh had to be installed as an ordinary package, because home-manager has priority issues otherwise.
-    pkgs.zsh
   ];
 
   # Configure Vim..
